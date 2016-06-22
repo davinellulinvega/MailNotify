@@ -6,6 +6,22 @@ import pynotify
 import pyinotify
 from os import environ
 
+EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs"]
+
+def is_excluded(path):
+    """Check if the present path should be excluded"""
+
+    # Check for folder to exclude
+    exclude = False
+    print(path)
+    for folder in EXCLUDE_DIR:
+        if path.find(folder) != -1:
+            print("Excluding")
+            exclude = True
+            break
+
+    return exclude
+
 
 class MailEventHandler(pyinotify.ProcessEvent):
     """
@@ -22,33 +38,31 @@ class MailEventHandler(pyinotify.ProcessEvent):
         # Get the file linked to the event
         file_path = event.pathname
 
-        if file_path.find("[Gmail]") == -1 and file_path.find("Drafts") == -1 and file_path.find("Trash") == -1:
-            # Read the interesting information from the file
-            subject = ""
-            fro = ""
-            with open(file_path, "r") as mail_file:
+        # Read the interesting information from the file
+        subject = ""
+        fro = ""
+        with open(file_path, "r") as mail_file:
+            line = mail_file.readline()
+            while line != "":
+                # Get the subject and sender
+                if line.startswith("Subject"):
+                    subject = line
+                if line.startswith("From"):
+                    fro = line
+                # Read the next line
                 line = mail_file.readline()
-                while line != "":
-                    # Get the subject and sender
-                    if line.startswith("Subject"):
-                        subject = line
-                    if line.startswith("From"):
-                        fro = line
-                    # Read the next line
-                    line = mail_file.readline()
-            
-            # Send a notification only if we have a subject or a sender
-            if subject != "" or fro != "":
-                # Initialize the notify module
-                if pynotify.init("Notify Mail"):
+        
+        # Send a notification only if we have a subject or a sender
+        if subject != "" or fro != "":
+            # Initialize the notify module
+            if pynotify.init("Notify Mail"):
 
-                    # Declare a new notification
-                    n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
-                    n.set_urgency(1)
+                # Declare a new notification
+                n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
+                n.set_urgency(1)
 
-                    # Show the notification
-                    n.show()
-
+                # Show the notification
+                n.show()
 
 if __name__ == "__main__":
 
@@ -59,7 +73,7 @@ if __name__ == "__main__":
     notifier = pyinotify.ThreadedNotifier(wm, MailEventHandler())
 
     # Add the folder to watch
-    wdd = wm.add_watch("{}/.claws-mail/imapcache/".format(environ["HOME"]), pyinotify.IN_CREATE,rec=True)
+    wdd = wm.add_watch("{}/.claws-mail/imapcache/".format(environ["HOME"]), pyinotify.IN_CREATE,rec=True, exclude_filter=is_excluded)
 
     try:
         # Start the thread
