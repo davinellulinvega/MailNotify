@@ -24,7 +24,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
 
         # Read the interesting information from the file
         subject = "Subject: None"
-        fro = "From: Unknown"
+        fro = "From: Unknown\n"
         with open(file_path, "r") as mail_file:
             line = mail_file.readline()
             while line != "":
@@ -40,7 +40,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
         if pynotify.init("Notify Mail"):
 
             # Declare a new notification
-            n = pynotify.Notification("New message", "{}\n{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
+            n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
             n.set_urgency(1)
 
             # Show the notification
