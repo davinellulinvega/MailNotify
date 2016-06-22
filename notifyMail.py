@@ -13,10 +13,8 @@ def is_excluded(path):
 
     # Check for folder to exclude
     exclude = False
-    print(path)
     for folder in EXCLUDE_DIR:
         if path.find(folder) != -1:
-            print("Excluding")
             exclude = True
             break
 
