@@ -22,7 +22,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
         # Get the file linked to the event
         file_path = event.pathname
 
-        if file_path.find("[Gmail]") == -1:
+        if file_path.find("[Gmail]") == -1 and file_path.find("Drafts") == -1 and file_path.find("Trash") == -1:
             # Read the interesting information from the file
             subject = "Subject: None"
             fro = "From: Unknown\n"
