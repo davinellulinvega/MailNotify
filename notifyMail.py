@@ -24,8 +24,8 @@ class MailEventHandler(pyinotify.ProcessEvent):
 
         if file_path.find("[Gmail]") == -1 and file_path.find("Drafts") == -1 and file_path.find("Trash") == -1:
             # Read the interesting information from the file
-            subject = "Subject: None"
-            fro = "From: Unknown\n"
+            subject = ""
+            fro = ""
             with open(file_path, "r") as mail_file:
                 line = mail_file.readline()
                 while line != "":
@@ -36,16 +36,18 @@ class MailEventHandler(pyinotify.ProcessEvent):
                         fro = line
                     # Read the next line
                     line = mail_file.readline()
+            
+            # Send a notification only if we have a subject or a sender
+            if subject != "" or fro != "":
+                # Initialize the notify module
+                if pynotify.init("Notify Mail"):
 
-            # Initialize the notify module
-            if pynotify.init("Notify Mail"):
+                    # Declare a new notification
+                    n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
+                    n.set_urgency(1)
 
-                # Declare a new notification
-                n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
-                n.set_urgency(1)
-
-                # Show the notification
-                n.show()
+                    # Show the notification
+                    n.show()
 
 
 if __name__ == "__main__":
