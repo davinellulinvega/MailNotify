@@ -22,29 +22,30 @@ class MailEventHandler(pyinotify.ProcessEvent):
         # Get the file linked to the event
         file_path = event.pathname
 
-        # Read the interesting information from the file
-        subject = "Subject: None"
-        fro = "From: Unknown\n"
-        with open(file_path, "r") as mail_file:
-            line = mail_file.readline()
-            while line != "":
-                # Get the subject and sender
-                if line.startswith("Subject"):
-                    subject = line
-                if line.startswith("From"):
-                    fro = line
-                # Read the next line
+        if file_path.find("[Gmail]") == -1:
+            # Read the interesting information from the file
+            subject = "Subject: None"
+            fro = "From: Unknown\n"
+            with open(file_path, "r") as mail_file:
                 line = mail_file.readline()
+                while line != "":
+                    # Get the subject and sender
+                    if line.startswith("Subject"):
+                        subject = line
+                    if line.startswith("From"):
+                        fro = line
+                    # Read the next line
+                    line = mail_file.readline()
 
-        # Initialize the notify module
-        if pynotify.init("Notify Mail"):
+            # Initialize the notify module
+            if pynotify.init("Notify Mail"):
 
-            # Declare a new notification
-            n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
-            n.set_urgency(1)
+                # Declare a new notification
+                n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
+                n.set_urgency(1)
 
-            # Show the notification
-            n.show()
+                # Show the notification
+                n.show()
 
 
 if __name__ == "__main__":
