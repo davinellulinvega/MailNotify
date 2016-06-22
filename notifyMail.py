@@ -8,6 +8,7 @@ from os import environ
 
 EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs"]
 
+
 def is_excluded(path):
     """Check if the present path should be excluded"""
 
@@ -71,7 +72,8 @@ if __name__ == "__main__":
     notifier = pyinotify.ThreadedNotifier(wm, MailEventHandler())
 
     # Add the folder to watch
-    wdd = wm.add_watch("{}/.claws-mail/imapcache/".format(environ["HOME"]), pyinotify.IN_CREATE,rec=True, exclude_filter=is_excluded)
+    wdd = wm.add_watch("{}/.claws-mail/imapcache/".format(environ["HOME"]), pyinotify.IN_CREATE, rec=True,
+                       exclude_filter=is_excluded)
 
     try:
         # Start the thread
