@@ -6,7 +6,7 @@ import pynotify
 import pyinotify
 from os import environ
 
-EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs"]
+EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs", "Queue"]
 
 
 def is_excluded(path):
