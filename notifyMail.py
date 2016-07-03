@@ -7,6 +7,7 @@ import pyinotify
 from os import environ
 
 EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs", "Queue"]
+NOTIFIED_MAIL = []
 
 
 def is_excluded(path):
@@ -52,7 +53,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 line = mail_file.readline()
         
         # Send a notification only if we have a subject or a sender
-        if subject != "" or fro != "":
+        if (subject != "" or fro != "") and (fro, subject) not in NOTIFIED_MAIL:
             # Initialize the notify module
             if pynotify.init("Notify Mail"):
 
@@ -62,6 +63,9 @@ class MailEventHandler(pyinotify.ProcessEvent):
 
                 # Show the notification
                 n.show()
+
+                # Add the notified mail to the list
+                NOTIFIED_MAIL.append((fro, subject))
 
 if __name__ == "__main__":
 
