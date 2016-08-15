@@ -45,7 +45,7 @@ def dump_mail(new_list):
 
     with open("/tmp/notified_mail.pik", "wb") as f:
         # Initialize a pickler object
-        pickler = Pickler(f)
+        pickler = Pickler(f, protocol=-1)  # A negative protocol selects the highest available version
         # Store the newly modified list
         pickler.dump(new_list)
 
