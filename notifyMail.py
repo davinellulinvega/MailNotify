@@ -5,9 +5,10 @@ __author__ = 'davinellulinvega'
 import pynotify
 import pyinotify
 from os import environ
+from pickle import Pickler
+from pickle import Unpickler
 
 EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs", "Queue"]
-NOTIFIED_MAIL = []
 
 
 def is_excluded(path):
@@ -21,6 +22,27 @@ def is_excluded(path):
             break
 
     return exclude
+
+def load_mail():
+    """Load a the list of already processed mails"""
+    try:
+        f = open("/tmp/notified_mail.pik", "rb")
+    except IOError:
+        return []
+
+    # Initialize an unpickler
+    unpickler = pickle.Unpickler(f)
+    # Return the list read
+    return unpickler.load()
+
+def dump_mail(new_list):
+    """Save the list of already processed mails"""
+
+    with open("/tmp/notified_mail.pik", "wb") as f:
+        # Initialize a pickler object
+        pickler = pickle.Pickler(f, protocol=-1)
+        # Store the newly modified list
+        pickler.save(new_list)
 
 
 class MailEventHandler(pyinotify.ProcessEvent):
@@ -51,9 +73,12 @@ class MailEventHandler(pyinotify.ProcessEvent):
                     fro = line
                 # Read the next line
                 line = mail_file.readline()
+
+        # Load the mails that have already been processed
+        notified_mails = load_mail()
         
         # Send a notification only if we have a subject or a sender
-        if (subject != "" or fro != "") and (fro, subject) not in NOTIFIED_MAIL:
+        if (subject != "" or fro != "") and (fro, subject) not in notified_mails:
             # Initialize the notify module
             if pynotify.init("Notify Mail"):
 
@@ -65,7 +90,10 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 n.show()
 
                 # Add the notified mail to the list
-                NOTIFIED_MAIL.append((fro, subject))
+                notified_mails.append((fro, subject))
+
+                # Record the mails already notified
+                dump_mail(notified_mails)
 
 if __name__ == "__main__":
 
