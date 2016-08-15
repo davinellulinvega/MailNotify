@@ -30,19 +30,24 @@ def load_mail():
     except IOError:
         return []
 
-    # Initialize an unpickler
-    unpickler = pickle.Unpickler(f)
-    # Return the list read
-    return unpickler.load()
+    try:
+        # Initialize an unpickler
+        unpickler = Unpickler(f)
+        # load the list of processed mails
+        proc_list = unpickler.load()
+        # Return the processed the list
+        return proc_list
+    except EOFError:
+        return []
 
 def dump_mail(new_list):
     """Save the list of already processed mails"""
 
     with open("/tmp/notified_mail.pik", "wb") as f:
         # Initialize a pickler object
-        pickler = pickle.Pickler(f, protocol=-1)
+        pickler = Pickler(f)
         # Store the newly modified list
-        pickler.save(new_list)
+        pickler.dump(new_list)
 
 
 class MailEventHandler(pyinotify.ProcessEvent):
