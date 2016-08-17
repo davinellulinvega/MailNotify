@@ -87,18 +87,18 @@ class MailEventHandler(pyinotify.ProcessEvent):
             # Initialize the notify module
             if pynotify.init("Notify Mail"):
 
+                # Add the notified mail to the list
+                notified_mails.append((fro, subject))
+
+                # Record the mails already notified
+                dump_mail(notified_mails)
+
                 # Declare a new notification
                 n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
                 n.set_urgency(1)
 
                 # Show the notification
                 n.show()
-
-                # Add the notified mail to the list
-                notified_mails.append((fro, subject))
-
-                # Record the mails already notified
-                dump_mail(notified_mails)
 
 if __name__ == "__main__":
 
