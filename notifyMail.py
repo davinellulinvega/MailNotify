@@ -94,7 +94,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 dump_mail(notified_mails)
 
                 # Declare a new notification
-                n = pynotify.Notification("New message", "{}{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
+                n = pynotify.Notification("New message", "{}\n{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
                 n.set_urgency(1)
 
                 # Show the notification
