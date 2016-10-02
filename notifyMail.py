@@ -7,6 +7,7 @@ import pyinotify
 from os import environ
 from pickle import Pickler
 from pickle import Unpickler
+from email.header import decode_header
 
 EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs", "Queue"]
 
@@ -73,7 +74,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
             while line != "":
                 # Get the subject and sender
                 if line.startswith("Subject"):
-                    subject = line.strip('\r\n')
+                    subject = decode_header(line.strip('\r\n'))[0][0]
                 if line.startswith("From"):
                     fro = line.strip('\r\n')
                 # Read the next line
