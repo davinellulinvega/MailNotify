@@ -75,10 +75,10 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 # Get the subject and sender
                 if line.startswith("Subject"):
                     header = decode_header(line.strip('\r\n'))
-                    subject = " ".join([s for head in header for s in head if s is not None])
+                    subject = " ".join([s for head in header for s in head if isinstance(s, str)])
                 if line.startswith("From"):
                     header = decode_header(line.strip('\r\n'))
-                    fro = " ".join([s for head in header for s in head if s is not None])
+                    fro = " ".join([s for head in header for s in head if isinstance(s, str)])
                 # Read the next line
                 line = mail_file.readline()
 
