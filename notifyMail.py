@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'davinellulinvega'
 
-import pynotify
+import notify2 as pynotify
 import pyinotify
 from os import environ
 from pickle import Pickler
