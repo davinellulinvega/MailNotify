@@ -5,11 +5,12 @@ __author__ = 'davinellulinvega'
 import notify2 as pynotify
 import pyinotify
 from os import environ
+from glob import glob
 from pickle import Pickler
 from pickle import Unpickler
 from email.header import decode_header
 
-EXCLUDE_DIR = ["[Gmail]", "Drafts", "Trash", "Jobs", "Queue"]
+EXCLUDE_DIR = ["Sent", "Drafts", "Trash", "Jobs", "Queue"]
 
 
 def is_excluded(path):
@@ -112,8 +113,8 @@ if __name__ == "__main__":
     notifier = pyinotify.ThreadedNotifier(wm, MailEventHandler())
 
     # Add the folder to watch
-    wdd = wm.add_watch("{}/.claws-mail/imapcache/".format(environ["HOME"]), pyinotify.IN_CREATE, rec=True,
-                       exclude_filter=is_excluded)
+    for d in glob("{}/Mail/*/*/new/".format(environ['HOME'])):
+        wdd = wm.add_watch(d, pyinotify.IN_CREATE, exclude_filter=is_excluded)
 
     try:
         # Start the thread
