@@ -3,7 +3,6 @@
 __author__ = 'davinellulinvega'
 
 import notify2 as pynotify
-import pyinotify
 from os import environ
 from glob import glob
 from pickle import Pickler
@@ -52,20 +51,17 @@ def dump_mail(new_list):
         pickler.dump(new_list)
 
 
-class MailEventHandler(pyinotify.ProcessEvent):
+class MailHandler():
     """
     A simple handler that will send a notification upon reception of a new mail
     """
 
-    def process_IN_CREATE(self, event):
+    def process(self, file_path):
         """
         React to the creation of a new file in the watched directory.
         :param event: The event and its properties
         :return:
         """
-
-        # Get the file linked to the event
-        file_path = event.pathname
 
         # Read the interesting information from the file
         subject = ""
@@ -106,19 +102,8 @@ class MailEventHandler(pyinotify.ProcessEvent):
 
 if __name__ == "__main__":
 
-    # Instantiate a watch manager
-    wm = pyinotify.WatchManager()
-
-    # Instantiate a notifier object
-    notifier = pyinotify.ThreadedNotifier(wm, MailEventHandler())
+    mh = MailHandler()
 
     # Add the folder to watch
-    for d in glob("{}/Mail/*/*/new/".format(environ['HOME'])):
-        wdd = wm.add_watch(d, pyinotify.IN_CREATE, exclude_filter=is_excluded)
-
-    try:
-        # Start the thread
-        notifier.start()
-
-    except:
-        notifier.stop()
+    for f in glob("{}/Mail/*/*/new/*".format(environ['HOME'])):
+        mh.process(f)
