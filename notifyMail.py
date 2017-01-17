@@ -57,7 +57,7 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 line = mail_file.readline()
 
         # Send a notification only if we have a subject or a sender
-        if (subject != "" or fro != "") and (fro, subject):
+        if (subject != "" or fro != "") and (fro, subject) not in notified_mails:
             # Initialize the notify module
             if pynotify.init("Notify Mail"):
 
@@ -78,8 +78,8 @@ if __name__ == "__main__":
 
     # Add the folder to watch
     for d in glob("{}/Mail/*/*/new/".format(environ['HOME'])):
-        wdd = wm.add_watch(d, pyinotify.IN_CREATE, rec=True, exclude_filter=is_excluded)
-        
+        wdd = wm.add_watch(d, pyinotify.IN_CREATE, exclude_filter=is_excluded)
+
     try:
         # Start the thread
         notifier.start()
