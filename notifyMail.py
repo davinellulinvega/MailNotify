@@ -25,6 +25,33 @@ def is_excluded(path):
 
     return exclude
 
+def load_mail():
+    """Load a the list of already processed mails"""
+    try:
+        f = open("/tmp/notified_mail.pik", "rb")
+    except IOError:
+        return []
+
+    try:
+        # Initialize an unpickler
+        unpickler = Unpickler(f)
+        # load the list of processed mails
+        proc_list = unpickler.load()
+        # Return the processed the list
+        return proc_list
+    except EOFError:
+        return []
+
+def dump_mail(new_list):
+    """Save the list of already processed mails"""
+
+    with open("/tmp/notified_mail.pik", "wb") as f:
+        # Initialize a pickler object
+        pickler = Pickler(f, protocol=-1)  # A negative protocol selects the highest available version
+        # Store the newly modified list
+        pickler.dump(new_list)
+
+
 class MailEventHandler(pyinotify.ProcessEvent):
     """
     A simple handler that will send a notification upon reception of a new mail
@@ -56,10 +83,19 @@ class MailEventHandler(pyinotify.ProcessEvent):
                 # Read the next line
                 line = mail_file.readline()
 
+        # Load the mails that have already been processed
+        notified_mails = load_mail()
+        
         # Send a notification only if we have a subject or a sender
         if (subject != "" or fro != "") and (fro, subject) not in notified_mails:
             # Initialize the notify module
             if pynotify.init("Notify Mail"):
+
+                # Add the notified mail to the list
+                notified_mails.append((fro, subject))
+
+                # Record the mails already notified
+                dump_mail(notified_mails)
 
                 # Declare a new notification
                 n = pynotify.Notification("New message", "{}\n{}".format(fro, subject), "/usr/share/icons/Faenza/apps/48/mail-notification.png")
