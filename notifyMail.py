@@ -5,8 +5,7 @@ __author__ = 'davinellulinvega'
 import notify2 as pynotify
 from os import environ
 from glob import glob
-from pickle import Pickler
-from pickle import Unpickler
+from pickle import Pickler, Unpickler
 from email.header import decode_header
 
 EXCLUDE_DIR = ["Sent", "Drafts", "Trash", "Jobs", "Queue"]
