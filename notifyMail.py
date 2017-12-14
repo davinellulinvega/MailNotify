@@ -3,7 +3,8 @@
 __author__ = 'davinellulinvega'
 
 import notify2 as pynotify
-from os import environ
+import pyinotify
+from os import environ, path
 from glob import glob
 from pickle import Pickler, Unpickler
 from email.header import decode_header
@@ -23,6 +24,7 @@ def is_excluded(path):
 
     return exclude
 
+
 def load_mail():
     """Load a the list of already processed mails"""
     try:
@@ -40,6 +42,7 @@ def load_mail():
     except EOFError:
         return []
 
+
 def dump_mail(new_list):
     """Save the list of already processed mails"""
 
@@ -50,17 +53,21 @@ def dump_mail(new_list):
         pickler.dump(new_list)
 
 
-class MailHandler():
+class EventHandler(pyinotify.ProcessEvent):
     """
     A simple handler that will send a notification upon reception of a new mail
     """
 
-    def process(self, file_path):
+    def process_IN_CREATE(self, event):
         """
         React to the creation of a new file in the watched directory.
         :param event: The event and its properties
         :return:
         """
+
+        # Extract the file path
+        file_path = event.pathname
+        print(file_path)
 
         # Read the interesting information from the file
         subject = ""
@@ -80,7 +87,7 @@ class MailHandler():
 
         # Load the mails that have already been processed
         notified_mails = load_mail()
-        
+
         # Send a notification only if we have a subject or a sender
         if (subject != "" or fro != "") and (fro, subject) not in notified_mails:
             # Initialize the notify module
@@ -99,10 +106,11 @@ class MailHandler():
                 # Show the notification
                 n.show()
 
+
 if __name__ == "__main__":
-
-    mh = MailHandler()
-
-    # Add the folder to watch
-    for f in glob("{}/Mail/*/*/new/*".format(environ['HOME'])):
-        mh.process(f)
+    wm = pyinotify.WatchManager()
+    mask = pyinotify.IN_CREATE
+    handler = EventHandler()
+    notifier = pyinotify.Notifier(wm, handler)
+    wdd = wm.add_watch(path.join(environ['HOME'], "Mail"), mask, rec=True)
+    notifier.loop()
