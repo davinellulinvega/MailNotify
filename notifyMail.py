@@ -67,7 +67,6 @@ class EventHandler(pyinotify.ProcessEvent):
 
         # Extract the file path
         file_path = event.pathname
-        print(file_path)
 
         # Read the interesting information from the file
         subject = ""
@@ -81,8 +80,6 @@ class EventHandler(pyinotify.ProcessEvent):
                 if fro == "" and line.startswith("From"):
                     header = decode_header(line.strip('\r\n'))
                     fro = " ".join([s for head in header for s in head if isinstance(s, str)])
-                # Read the next line
-                line = mail_file.readline()
 
         # Load the mails that have already been processed
         notified_mails = load_mail()
