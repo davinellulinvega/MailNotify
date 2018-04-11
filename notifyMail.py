@@ -50,17 +50,19 @@ class EventHandler(pyinotify.ProcessEvent):
                 with open(file_path, "r") as mail_file:
                     for line in mail_file:
                         # Get the subject and sender
-                        if subject == "" and line.startswith("Subject"):
+                        if not subject and line.startswith("Subject: "):
                             header = decode_header(line.strip('\r\n'))
                             subject = " ".join([s for head in header for s in head if isinstance(s, str)])
-                        if fro == "" and line.startswith("From"):
+                        if not fro and line.startswith("From: "):
                             header = decode_header(line.strip('\r\n'))
                             fro = " ".join([s for head in header for s in head if isinstance(s, str)])
+                        if subject and fro:
+                            break
             except IOError:
                 pass
 
             # Send a notification only if we have a subject or a sender
-            if (subject != "" or fro != ""):
+            if subject or fro:
                 # Initialize the notify module
                 pynotify.init("Notify Mail")
 
