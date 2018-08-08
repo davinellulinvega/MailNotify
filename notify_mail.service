@@ -1,0 +1,10 @@
+[Unit]
+Description=Displays notifications upon receiving new emails in both the Perso and UoS inboxes.
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/davinellulinvega/Softwares/NotifyMail/notifyMail.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
