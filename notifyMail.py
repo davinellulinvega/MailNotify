@@ -52,10 +52,10 @@ class EventHandler(pyinotify.ProcessEvent):
                         # Get the subject and sender
                         if not subject and line.startswith("Subject: "):
                             header = decode_header(line.strip('\r\n'))
-                            subject = " ".join([head[0] for head in header])
+                            subject = " ".join(map(str, [head[0] for head in header]))
                         if not fro and line.startswith("From: "):
                             header = decode_header(line.strip('\r\n'))
-                            fro = " ".join([head[0] for head in header])
+                            fro = " ".join(map(str, [head[0] for head in header]))
                         if subject and fro:
                             break
             except IOError:
